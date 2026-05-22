@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 flex">
+    <div class="w-64 h-screen bg-slate-900 text-white flex flex-col p-6 fixed">
+        <h1 class="text-2xl font-bold mb-10">Ace Bank</h1>
+        <nav class="space-y-4">
+            <a href="/" class="block p-3 rounded bg-blue-600">Dashboard</a>
+            <a href="/transfer" class="block p-3 rounded hover:bg-slate-800">Transfers</a>
+            <a href="/open-account" class="block p-3 rounded hover:bg-slate-800">Open Account</a>
+            <a href="/history" class="block p-3 rounded hover:bg-slate-800">History</a>
+        </nav>
+    </div>
+    <div class="ml-64 flex-1 p-10">
+        <div class="bg-blue-800 p-8 rounded-2xl text-white mb-10">
+            <p class="text-blue-200 uppercase">Available Balance</p>
+            <p class="text-4xl font-bold">${{ total_balance }}</p>
+        </div>
+        <h3 class="text-xl font-bold mb-4">Recent Activity</h3>
+        <table class="w-full bg-white rounded-xl overflow-hidden shadow-sm">
+            <tbody class="divide-y">
+                {% for tx in history %}
+                <tr><td class="p-4">{{ tx.from_account }} to {{ tx.to_account }}</td><td class="p-4 text-right">-${{ tx.amount }}</td></tr>
+                {% else %}
+                <tr><td colspan="2" class="p-10 text-center text-gray-400">No activity found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+
+<h3 class="text-xl font-bold text-slate-800 mb-4">Recent Transactions</h3>
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+    <table class="w-full text-left">
+        <thead class="bg-gray-50 text-gray-400 text-xs uppercase font-medium">
+            <tr>
+                <th class="px-6 py-4">Transaction Details</th>
+                <th class="px-6 py-4 text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            {% for tx in history %}
+            <tr class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 font-medium">
+                    {# Logic to show 'To' or 'From' based on the user's primary account #}
+                    {% if tx.from_account == "ACC-TNU-01" %}
+                        <span class="text-slate-500">To:</span> {{ tx.to_account }}
+                    {% else %}
+                        <span class="text-slate-500">From:</span> {{ tx.from_account }}
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4 text-right font-bold {% if tx.from_account == 'ACC-TNU-01' %}text-red-600{% else %}text-green-600{% endif %}">
+                    {# Smart sign and color selection #}
+                    {% if tx.from_account == 'ACC-TNU-01' %}-{% else %}+{% endif %}${{ "{:,.2f}".format(tx.amount) }}
+                </td>
+            </tr>
+            {% else %}
+            {# Fallback if no transactions exist in the database #}
+            <tr>
+                <td colspan="2" class="px-6 py-12 text-center text-slate-400 italic">
+                    No activity found for this account.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
